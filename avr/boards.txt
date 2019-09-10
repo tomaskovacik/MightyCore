@@ -990,3 +990,20 @@ menu.bootloader=Bootloader
 8535.menu.clock.1MHz_internal.bootloader.sut_cksel_bits=100001
 8535.menu.clock.1MHz_internal.bootloader.ckopt_bit=1
 8535.menu.clock.1MHz_internal.build.f_cpu=1000000L
+
+1284.menu.pinout.nano=Nano pinout
+1284.menu.pinout.nano.build.variant=nanoXX4
+1284.menu.pinout.mega=Mega pinout
+1284.menu.pinout.mega.build.variant=megaXX4
+
+644.menu.pinout.nano=Nano pinout
+644.menu.pinout.nano.build.variant=nanoXX4
+644.menu.pinout.mega=Mega pinout
+644.menu.pinout.mega.build.variant=megaXX4
+
+324.menu.pinout.nano=Nano pinout
+324.menu.pinout.nano.build.variant=nanoXX4
+324.menu.pinout.mega=Mega pinout
+324.menu.pinout.mega.build.variant=megaXX4
+
+
