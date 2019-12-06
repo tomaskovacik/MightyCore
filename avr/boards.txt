@@ -1014,17 +1014,23 @@ menu.bootloader=Bootloader
 
 1284.menu.pinout.nano=Nano pinout
 1284.menu.pinout.nano.build.variant=nanoXX4
+1284.menu.pinout.nano.build.bootloader_led=B7
 1284.menu.pinout.mega=Mega pinout
 1284.menu.pinout.mega.build.variant=megaXX4
+1284.menu.pinout.mega.build.bootloader_led=B7
 
 644.menu.pinout.nano=Nano pinout
 644.menu.pinout.nano.build.variant=nanoXX4
+644.menu.pinout.nano.build.bootloader_led=B7
 644.menu.pinout.mega=Mega pinout
 644.menu.pinout.mega.build.variant=megaXX4
+644.menu.pinout.mega.build.bootloader_led=B7
 
 324.menu.pinout.nano=Nano pinout
 324.menu.pinout.nano.build.variant=nanoXX4
+324.menu.pinout.nano.build.bootloader_led=B7
 324.menu.pinout.mega=Mega pinout
 324.menu.pinout.mega.build.variant=megaXX4
+324.menu.pinout.mega.build.bootloader_led=B7
 
 
