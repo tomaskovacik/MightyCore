@@ -17,8 +17,11 @@ but felt like vital functionality was missing on the board. When designing this 
 * [Supported clock frequencies](#supported-clock-frequencies)
 * [Bootloader option](#bootloader-option)
 * [BOD option](#bod-option)
+* [EEPROM retain option](#eeprom-option)
 * [Link time optimization / LTO](#link-time-optimization--lto)
 * [Printf support](#printf-support)
+* [Pin macros](#pin-macros)
+* [PROGMEM with flash sizes greater than 64kB](#progmem-with-flash-sizes-greater-than-64kb)
 * **[Pinout](#pinout)**
 * [Programmers](#programmers)
 * [Write to own flash](#write-to-own-flash)
@@ -58,6 +61,11 @@ Can't decide what microcontroller to choose? Have a look at the specification ta
 
 <b>*</b> ATmega324PB has 3 serial ports, 9 PWM pins and 39 IO pins if internal oscillator is used.
 
+
+## EEPROM option
+If you want the EEPROM to be erased every time you burn the bootloader or upload using a programmer, you can turn off this option. You'll have to connect an ISP programmer and hit "Burn bootloader" to enable or disable EEPROM retain. Note that when uploading using a bootloader, the EEPROM will always be retained.
+
+
 ## Supported clock frequencies
 
 MightyCore supports a variety of different clock frequencies. Select the microcontroller in the boards menu, then select the clock frequency. You'll have to hit "Burn bootloader" in order to set the correct fuses and upload the correct bootloader.  
@@ -66,22 +74,27 @@ Make sure you connect an ISP programmer, and select the correct one in the "Prog
 You might experience upload issues when using the internal oscillator. It's factory calibrated but may be a little "off" depending on the calibration, ambient temperature and operating voltage. If uploading failes while using the 8 MHz internal oscillator you have these options:
 * Edit the baudrate line in the [boards.txt](https://github.com/MCUdude/MightyCore/blob/d2a34e027e922631bbed8b4bd60824d5b1eb94cd/avr/boards.txt#L161) file, and choose either 115200, 57600, 38400 or 19200 baud.
 * Upload the code using a programmer (USBasp, USBtinyISP etc.) or skip the bootloader by holding down the shift key while clicking the "Upload" button
-* Use the 1 MHz option instead
+* Use the 4, 2 or 1 MHz option instead
 
-| Frequency   | Oscillator type             | Comment                                                       |
-|-------------|-----------------------------|---------------------------------------------------------------|
-| 16 MHz      | External crystal/oscillator | Default clock on most AVR based Arduino boards and MightyCore |
-| 20 MHz      | External crystal/oscillator | 
-| 18.4320 MHz | External crystal/oscillator | Great clock for UART communication with no error              |
-| 14.7456 MHz | External crystal/oscillator | Great clock for UART communication with no error              |
-| 12 MHz      | External crystal/oscillator | Useful when working with USB 1.1 (12 Mbit/s)                  |
-| 11.0592 MHz | External crystal/oscillator | Great clock for UART communication with no error              |
-| 8 MHz       | External crystal/oscillator | Common clock when working with 3.3V                           |
-| 7.3728 MHz  | External crystal/oscillator | Great clock for UART communication with no error              |
-| 3.6864 MHz  | External crystal/oscillator | Great clock for UART communication with no error              |
-| 1.8432 MHz  | External crystal/oscillator | Great clock for UART communication with no error              |
-| 8 MHz       | Internal oscillator         | Might cause UART upload issues. See comment above this table  |
-| 1 MHz       | Internal oscillator         | Derived from the 8 MHz internal oscillator                    |
+| Frequency   | Oscillator type             | Speed  | Comment                                           |
+|-------------|-----------------------------|--------|---------------------------------------------------|
+| 16 MHz      | External crystal/oscillator | 115200 | Default clock on most AVR based Arduino boards    |
+| 20 MHz      | External crystal/oscillator | 115200 |                                                   |
+| 18.4320 MHz | External crystal/oscillator | 115200 | Great clock for UART communication with no error  |
+| 14.7456 MHz | External crystal/oscillator | 115200 | Great clock for UART communication with no error  |
+| 12 MHz      | External crystal/oscillator | 57600  | Useful when working with USB 1.1 (12 Mbit/s)      |
+| 11.0592 MHz | External crystal/oscillator | 115200 | Great clock for UART communication with no error  |
+| 8 MHz       | External crystal/oscillator | 57600  | Common clock when working with 3.3V               |
+| 7.3728 MHz  | External crystal/oscillator | 115200 | Great clock for UART communication with no error  |
+| 4 MHz       | External crystal/oscillator | 9600   |                                                   |
+| 3.6864 MHz  | External crystal/oscillator | 115200 | Great clock for UART communication with no error  |
+| 2 MHz       | External crystal/oscillator | 9600   |                                                   |
+| 1.8432 MHz  | External crystal/oscillator | 115200 | Great clock for UART communication with no error  |
+| 1 MHz       | External crystal/oscillator | 9600   |                                                   |
+| 8 MHz       | Internal oscillator         | 38400  | Might cause UART upload issues. See comment above |
+| 4 MHz       | Internal oscillator         | 9600   | Derived from the 8 MHz internal oscillator        |
+| 2 MHz       | Internal oscillator         | 9600   | Derived from the 8 MHz internal oscillator        |
+| 1 MHz       | Internal oscillator         | 9600   | Derived from the 8 MHz internal oscillator        |
 
 
 ## Bootloader option
@@ -121,6 +134,40 @@ Here's some raw numbers. These sketches were compiled for an **ATmega1284** usin
 Unlike the official Arduino cores, MightyCore has printf support out of the box. If you're not familiar with printf you should probably [read this first](https://www.tutorialspoint.com/c_standard_library/c_function_printf.htm). It's added to the Print class and will work with all libraries that inherit Print. Printf is a standard C function that lets you format text much easier than using Arduino's built-in print and println. Note that this implementation of printf will NOT print floats or doubles. This is a limitation of the avr-libc printf implementation on AVR microcontrollers, and nothing I can easily fix.
 
 If you're using a serial port, simply use `Serial.printf("Milliseconds since start: %ld\n", millis());`. Other libraries that inherit the Print class (and thus supports printf) are the LiquidCrystal LCD library and the U8G2 graphical LCD library.
+
+
+## Pin macros
+Note that you don't have to use the digital pin numbers to refer to the pins. You can also use some predefined macros that maps "Arduino pins" to the port and port number:
+
+```c++
+// Use PIN_PB0 macro to refer to pin PB0 (Arduino pin 0 with the standard and sanguino pinout)
+digitalWrite(PIN_PB0, HIGH);
+
+// Results in the exact same compiled code
+digitalWrite(0, HIGH);
+
+```
+
+
+## PROGMEM with flash sizes greater than 64kB
+The usual `PROGMEM` attribute stores constant data such as string arrays to flash and is great if you want to preserve the precious RAM. However, PROGMEM will only store content in the lower section, from 0 and up to 64kB. If you want to store data in the upper section, you can use `PROGMEM1` (64 - 128kB) if your target is an ATmega1284/P. Accessing this data is not as straight forward as with `PROGMEM`, but it's still doable:
+
+```c
+const char far_away[] PROGMEM1 = "Hello from far away!\n"; // (64  - 128kB)
+
+void print_progmem()
+{
+  char c;
+
+  // Print out far_away
+  for(uint8_t i = 0; i < sizeof(far_away); i++)
+  {
+    c = pgm_read_byte_far(pgm_get_far_address(far_away) + i);
+    Serial.write(c);
+  }
+}
+
+```
 
 
 ## Pinout
@@ -259,4 +306,4 @@ Here is a simple schematic showing a minimal setup using an external crystal. Sk
 
 | DIP-40 package                                        | TQFP-44 SMD package                                   | ATmega324PB SMD package                               |
 |-------------------------------------------------------|-------------------------------------------------------|-------------------------------------------------------|
-|<img src="https://i.imgur.com/pCiKton.png" width="280">|<img src="https://i.imgur.com/WgvcivB.png" width="280">|<img src="https://i.imgur.com/679DBWF.png" width="280">|
+|<img src="https://i.imgur.com/pCiKton.png" width="280">|<img src="https://i.imgur.com/5aKLRp0.png" width="280">|<img src="https://i.imgur.com/679DBWF.png" width="280">|

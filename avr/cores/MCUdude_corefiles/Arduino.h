@@ -32,6 +32,17 @@
 //#include <avr/sleep.h>
 #include "binary.h"
 
+// Use PROGMEM1 to place data in the memory between 64kB and 128kB
+// Use PROGMEM2 to place data in the memory between 128kB and 192kB
+// Use PROGMEM3 to place data in the memory between 192kB and 256kB
+#if FLASHEND >= 0x1FFFF
+  #define PROGMEM1 __attribute__((section(".FAR_MEM1")))
+#endif
+#if FLASHEND == 0x3FFFF
+  #define PROGMEM2 __attribute__((section(".FAR_MEM2")))
+  #define PROGMEM3 __attribute__((section(".FAR_MEM3")))
+#endif
+
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -80,7 +91,7 @@ void yield(void);
   #define EXTERNAL 0
   #define DEFAULT 1 // Default -> AVCC with external capacitor at AREF pin
   #define INTERNAL1V1 3
-  #define INTERNAL 3  
+  #define INTERNAL 3
 
 // ATmega640, ATmega1280, ATmega1281, ATmega2560, ATmega2561
 #elif defined(__AVR_ATmega640__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega1281__) \
@@ -89,18 +100,19 @@ void yield(void);
   #define DEFAULT 1 // Default -> AVCC with external capacitor at AREF pin
   #define INTERNAL1V1 2
   #define INTERNAL2V56 3
-  #define INTERNAL 3  
+  #define INTERNAL 3
 
 
-// ATmega164A/P, ATmega324A/P/PA, ATmega644/P, ATmega1284/P
+// ATmega164A/P, ATmega324A/P/PA/PB, ATmega644/P, ATmega1284/P
 #elif defined(__AVR_ATmega164A__) || defined(__AVR_ATmega164P__) || defined(__AVR_ATmega324A__) \
-|| defined(__AVR_ATmega324PA__) || defined(__AVR_ATmega324P__) || defined(__AVR_ATmega644A__)  \
-|| defined(__AVR_ATmega644P__)  || defined(__AVR_ATmega1284__) || defined(__AVR_ATmega1284P__)   
+|| defined(__AVR_ATmega324P__) || defined(__AVR_ATmega324PA__) || defined(__AVR_ATmega324PB__)  \
+|| defined(__AVR_ATmega644A__) || defined(__AVR_ATmega644P__)  || defined(__AVR_ATmega1284__)   \
+|| defined(__AVR_ATmega1284P__)
   #define EXTERNAL 0
   #define DEFAULT 1 // Default -> AVCC with external capacitor at AREF pin
   #define INTERNAL1V1 2
   #define INTERNAL2V56 3
-  #define INTERNAL 3  
+  #define INTERNAL 3
 
 #endif
 
@@ -150,33 +162,28 @@ void initVariant(void);
 
 int atexit(void (*func)()) __attribute__((weak));
 
-void pinMode(uint8_t, uint8_t);
-void digitalWrite(uint8_t, uint8_t);
-int digitalRead(uint8_t);
-int analogRead(uint8_t);
+void pinMode(uint8_t pin, uint8_t mode);
+void digitalWrite(uint8_t pin, uint8_t state);
+int digitalRead(uint8_t pin);
+int analogRead(uint8_t pin);
 void analogReference(uint8_t mode);
-void analogWrite(uint8_t, int);
+void analogWrite(uint8_t pin, int value);
 
 unsigned long millis(void);
 unsigned long micros(void);
-void delay(unsigned long);
-void delayMicroseconds(unsigned int us);
+void delay(unsigned long ms);
+void delayMicroseconds(unsigned int us) __attribute__ ((noinline));
 unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
 unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout);
 
 void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val);
 uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
 
-void attachInterrupt(uint8_t, void (*)(void), int mode);
-void detachInterrupt(uint8_t);
+void attachInterrupt(uint8_t interruptNumber, void (*)(void), int mode);
+void detachInterrupt(uint8_t interruptNumber);
 
 void setup(void);
 void loop(void);
-
-// Get the bit location within the hardware port of the given virtual pin.
-// This comes from the pins_*.c file for the active board configuration.
-
-#define analogInPinToBit(P) (P)
 
 // On the ATmega1280, the addresses of some of the port registers are
 // greater than 255, so we can't store them in uint8_t's.
@@ -302,14 +309,14 @@ uint16_t makeWord(byte h, byte l);
 unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
 unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
 
-void tone(uint8_t _pin, unsigned int frequency, unsigned long duration = 0);
-void noTone(uint8_t _pin);
+void tone(uint8_t pin, unsigned int frequency, unsigned long duration = 0);
+void noTone(uint8_t pin);
 
 // WMath prototypes
-long random(long);
-long random(long, long);
-void randomSeed(unsigned long);
-long map(long, long, long, long, long);
+long random(long max);
+long random(long min, long max);
+void randomSeed(unsigned long seed);
+long map(long value, long fromLow, long fromHigh, long toLow, long toHigh);
 
 #endif
 
