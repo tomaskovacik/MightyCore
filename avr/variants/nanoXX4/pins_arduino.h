@@ -124,11 +124,12 @@ defined(__AVR_ATmega324P__) || defined(__AVR_ATmega324PA__) || defined(__AVR_ATm
 defined(__AVR_ATmega644A__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284__) || \
 defined(__AVR_ATmega1284P__)
 #if defined(__AVR_ATmega324PB__)
-#define PORT_NDX_TO_PCMSK(x) ((x) == 0 ? &PCMSK0 : ((x) == 1 ? &PCMSK1 : ((x) == 2 ? &PCMSK2 : ((x) == 3 ? &PCMSK3 : ((x) == 4 ? &PCMSK4 : (uint8_t )0)))))
-#else
-#define PORT_NDX_TO_PCMSK(x) ((x) == 0 ? &PCMSK0 : ((x) == 1 ? &PCMSK1 : ((x) == 2 ? &PCMSK2 : ((x) == 3 ? &PCMSK3 : (uint8_t )0))))
-#endif
+#define PORT_NDX_TO_PCMSK(x) ((x) == 0 ? &PCMSK0 : ((x) == 1 ? &PCMSK1 : ((x) == 2 ? &PCMSK2 : ((x) == 3 ? &PCMSK3 : ((x) == 4 ? &PCMSK4 : (uint8_t *)0)))))
 #define ifpin(p,what,ifnot)         ((((p) >= 0 && (p) < 23) || ((p) >= 32 && (p) < 40) || ((p) >= 54 && (p) < 61)) ? (what) : (ifnot))
+#else
+#define PORT_NDX_TO_PCMSK(x) ((x) == 0 ? &PCMSK0 : ((x) == 1 ? &PCMSK1 : ((x) == 2 ? &PCMSK2 : ((x) == 3 ? &PCMSK3 : (uint8_t *)0))))
+#define ifpin(p,what,ifnot)         ((((p) >= 0 && (p) < 23) || ((p) >= 32 && (p) < 33) || ((p) >= 54 && (p) < 61)) ? (what) : (ifnot))
+#endif
 #define digitalPinToPCICR(p)    ifpin(p,&PCICR,(uint8_t *)0)
 #define digitalPinToPCICRbit(p) ifpin(p,digital_pin_to_pcint[p] >> 3,0)
 #define digitalPinToPCMSK(p)    ifpin(p,(uint8_t *)PORT_NDX_TO_PCMSK(digital_pin_to_pcint[p] >> 3),(uint8_t *)0)
